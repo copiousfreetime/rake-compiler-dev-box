@@ -1,0 +1,3 @@
+[submodule "hitimes"]
+	path = hitimes
+	url = git@github.com:copiousfreetime/hitimes.git
