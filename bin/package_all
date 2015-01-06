@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 set -e
-source "$HOME/.rvm/scripts/rvm"
 
 package_native $1
 package_java $1

@@ -13,7 +13,7 @@ if [[ $(nproc) -gt 1 ]] && ! grep -q "make -j" $home/.bash_profile; then
 fi
 
 apt-get -y update
-apt-get install -y curl git-core mingw32 default-jdk
+apt-get install -y curl git mingw32 default-jdk autoconf bison build-essential libssl-dev libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm3 libgdbm-dev
 
 # Download mingw-w64 compilers
 mingw32='i686-w64-mingw32-gcc-4.7.2-release-linux64_rubenvb.tar.xz'
@@ -60,24 +60,30 @@ fi
 # do not generate documentation for gems
 $as_vagrant 'echo "gem: --no-ri --no-rdoc" >> ~/.gemrc'
 
-# install rvm
-$as_vagrant 'gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3' # RVM 1.26.0+ has signed releases
-$as_vagrant 'curl -L https://get.rvm.io | bash -s stable'
+# install ruby-build
+$as_vagrant 'git clone https://github.com/sstephenson/ruby-build.git'
+$as_vagrant 'cd ruby-build && sudo ./install.sh'
 
-# source rvm for usage outside of package scripts
-rvm_path="$home/.rvm/scripts/rvm"
+# create ruby home
+ruby_build_home=/opt/ruby-build
+mkdir -p $ruby_build_home
+chown -R vagrant:vagrant $rubies_build_home
 
-if ! grep -q "$rvm_path" $home/.bash_profile; then
-  echo "source $rvm_path" >> $home/.bash_profile
-  source $home/.bash_profile
+rubies_home=/opt/rubies
+mkdir -p $rubies_home
+chown -R vagrant:vagrant $rubies_home
+
+# make sure to cache the tarballs
+if ! grep -q "RUBY_BUILD_CACHE_PATH" $home/.bash_profile; then
+  echo "export RUBY_BUILD_CACHE_PATH=${ruby_build}/cache" >> $home/.bash_profile
 fi
 
 # install rubies
-$as_vagrant 'rvm install jruby'
-$as_vagrant 'rvm install 1.8.7-p374'
-$as_vagrant 'rvm install 1.9.3'
-$as_vagrant 'rvm install 2.0.0'
-$as_vagrant 'rvm install 2.1'
+$as_vagrant "ruby-build jruby-1.7.18 $rubies_home/jruby-1.7.18"
+$as_vagrant "ruby-build 1.9.3-p551   $rubies_home/ruby-1.9.3-p551"
+$as_vagrant "ruby-build 2.0.0-p598   $rubies_home/ruby-2.0.0-p598"
+$as_vagrant "ruby-build 2.1.5        $rubies_home/ruby-2.1.5"
+$as_vagrant "ruby-build 2.2.0        $rubies_home/ruby-2.2.0"
 
 # add /vagrant/bin to the PATH
 if ! grep -q "/vagrant/bin" $home/.bash_profile; then
