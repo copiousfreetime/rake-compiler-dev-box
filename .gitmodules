@@ -1,3 +1,6 @@
 [submodule "hitimes"]
 	path = hitimes
 	url = git@github.com:copiousfreetime/hitimes.git
+[submodule "amalgalite"]
+	path = amalgalite
+	url = git@github.com:copiousfreetime/amalgalite.git
