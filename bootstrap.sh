@@ -30,19 +30,37 @@ apt-get install -y \
   libyaml-dev \
   python-software-properties \
   sqlite3 \
+  tree \
   zlib1g-dev
 
-git clone git://github.com/sstephenson/rbenv.git /opt/rbenv
-git clone git://github.com/sstephenson/ruby-build.git /opt/rbenv/plugins/ruby-build
-cat <<EOF > /etc/profile.d/rbenv.sh
-export RBENV_ROOT=/opt/rbenv
-export PATH="\$RBENV_ROOT/bin:\$RBENV_ROOT/plugins/ruby-build/bin:\$PATH"
-eval "\$(rbenv init -)"
-EOF
-echo "gem: --no-ri --no-rdoc" >> /etc/gemrc
 
-source /etc/profile.d/rbenv.sh
+### Installing Chruby
+### https://github.com/postmodern/chruby
+pushd /usr/local/src
+curl -L -O https://raw.github.com/postmodern/postmodern.github.io/master/postmodern.asc
+gpg --import postmodern.asc
+curl -L https://github.com/postmodern/chruby/archive/v0.3.9.tar.gz > chruby-0.3.9.tar.gz
+curl -L -O https://raw.github.com/postmodern/chruby/master/pkg/chruby-0.3.9.tar.gz.asc
+gpg --verify chruby-0.3.9.tar.gz.asc chruby-0.3.9.tar.gz
+tar -xzvf chruby-0.3.9.tar.gz
+pushd chruby-0.3.9
+./scripts/setup.sh
+popd
+popd
 
-rbenv install -v 2.2.3
-rbenv install -v jruby-9.0.1.0
-rbenv global 2.2.3
+### Installing ruby-install
+### https://github.com/postmodern/ruby-install
+pushd /usr/local/src
+curl -L https://github.com/postmodern/ruby-install/archive/v0.5.0.tar.gz > ruby-install-0.5.0.tar.gz
+curl -L -O https://raw.github.com/postmodern/ruby-install/master/pkg/ruby-install-0.5.0.tar.gz.asc
+gpg --verify ruby-install-0.5.0.tar.gz.asc ruby-install-0.5.0.tar.gz
+tar -xzvf ruby-install-0.5.0.tar.gz
+pushd ruby-install-0.5.0
+make install
+popd
+popd
+
+### Install the rubies
+ruby-install ruby 2.2.3
+ruby-install ruby 2.1.7
+ruby-install jruby 9.0.1.0
